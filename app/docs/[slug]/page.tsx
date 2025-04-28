@@ -1,0 +1,1 @@
+// Dynamic docs based on slug (e.g., /docs/uptime-monitor)

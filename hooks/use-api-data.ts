@@ -1,0 +1,1 @@
+// Fetch dynamic data from external gateway

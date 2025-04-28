@@ -24,7 +24,7 @@ export default function Navbar() {
     },
     {
       name: "Admin",
-      href: "/admin",
+      href: "/admin/manage-apis",
       icon: ShieldCheck,
     },
   ]
