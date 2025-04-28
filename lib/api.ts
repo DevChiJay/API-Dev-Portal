@@ -1,1 +1,0 @@
-// Axios setup for external Gateway API
