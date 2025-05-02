@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, FileText, ExternalLink, Search } from "lucide-react";
+import { FileText, ExternalLink, Search } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,7 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="container py-10 space-y-6">
+    <div className="space-y-6">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold mb-4">API Documentation</h1>
         <p className="text-lg text-muted-foreground mb-8">

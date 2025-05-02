@@ -42,7 +42,7 @@ export default function Home() {
   const { isSignedIn } = useAuth();
 
   // Limit to 10 APIs for the landing page
-  const featuredApis = apisData?.apis?.slice(0, 10) || [];
+  const featuredApis = apisData?.apis?.slice(0, 6) || [];
 
   // Handle request API click
   const handleRequestApi = (api: Api) => {
