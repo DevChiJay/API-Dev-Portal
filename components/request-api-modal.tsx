@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useActionState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { useApiAction } from "@/hooks/use-api-action";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -29,10 +28,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, Copy, AlertCircle, CheckCircle } from "lucide-react";
+import {
+  CalendarIcon,
+  Loader2,
+  Copy,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import axios from "axios";
+import { useAuth } from "@clerk/nextjs";
 
 interface RequestApiModalProps {
   isOpen: boolean;
@@ -53,6 +60,8 @@ interface ApiKeyResponse {
   expiresAt: string;
 }
 
+const endpoint = `${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/api/keys`;
+
 export function RequestApiModal({
   isOpen,
   onClose,
@@ -64,48 +73,7 @@ export function RequestApiModal({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const [apiResponse, formAction, isPending] = useApiAction<ApiKeyResponse>("/api/keys");
-
-  const [formData, setFormData] = useState({
-    apiId: selectedApiId || "",
-    name: "",
-    permissions: "",
-    rateLimit: "1000",
-    expiresAt: "",
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      setFormData({
-        apiId: selectedApiId || "",
-        name: "",
-        permissions: "",
-        rateLimit: "1000",
-        expiresAt: "",
-      });
-      setSelectedDate(undefined);
-      setError(null);
-    }
-  }, [isOpen, selectedApiId]);
-
-  useEffect(() => {
-    if (apiResponse?.data) {
-      setShowSuccessModal(true);
-    } else if (apiResponse?.error) {
-      setError(apiResponse.error);
-    }
-  }, [apiResponse]);
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-      setFormData((prev) => ({ ...prev, expiresAt: date.toISOString() }));
-    }
-  };
+  const { getToken } = useAuth();
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -120,19 +88,57 @@ export function RequestApiModal({
     onClose();
   };
 
-  const validateAndSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const submitForm = async (prevState, formData) => {
+    const data = {
+      apiId: selectedApiId || "",
+      name: formData.get("name") || "",
+      status: "inactive",
+      permissions: formData.get("permissions") || "",
+      rateLimit: formData.get("rateLimit") || "1000",
+      expiresAt: formData.get("expiresAt") || new Date().toISOString(),
+    };
 
-    if (!formData.apiId || !formData.name || !formData.permissions || !formData.rateLimit || !formData.expiresAt) {
-      setError("All fields are required");
-      return;
+    if (!data.apiId) {
+      setError("Please select an API");
+      return false;
     }
 
-    const form = event.currentTarget;
-    form.requestSubmit();
+    if (!data.name) {
+      setError("Please enter a key name");
+      return false;
+    }
+
+    if (!data.permissions) {
+      setError("Please select permissions");
+      return false;
+    }
+
+    if (!data.rateLimit) {
+      setError("Please specify a rate limit");
+      return false;
+    }
+
+    try {
+      const token = await getToken();
+      const response = await axios.post(endpoint, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      setShowSuccessModal(true);
+      setError(null);
+
+      return {response: response.data}
+    } catch (error) {
+      setError("An error occurred while submitting the form.");
+    }
   };
 
-  if (showSuccessModal && apiResponse?.data) {
+  const [state, formAction, isPending] = useActionState(submitForm, {})
+  const apiResponse = state?.response
+
+  if (showSuccessModal && apiResponse) {
     return (
       <Dialog open={true} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-[500px]">
@@ -142,7 +148,8 @@ export function RequestApiModal({
               API Key Created Successfully
             </DialogTitle>
             <DialogDescription>
-              Your API key has been created. Please save this key as it will be shown only once.
+              Your API key has been created. Please save this key as it will be
+              shown only once.
             </DialogDescription>
           </DialogHeader>
 
@@ -153,11 +160,16 @@ export function RequestApiModal({
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between p-2 bg-background rounded border">
-                  <code className="text-sm font-mono break-all">{apiResponse.data.key}</code>
+                  <code className="text-sm font-mono break-all">
+                    {apiResponse?.key}
+                  </code>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => copyToClipboard(apiResponse.data.key)}
+                    onClick={() =>
+                      apiResponse?.key &&
+                      copyToClipboard(apiResponse.key)
+                    }
                     className="ml-2"
                   >
                     <Copy className="h-4 w-4" />
@@ -170,9 +182,12 @@ export function RequestApiModal({
               <div className="flex items-start">
                 <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mt-0.5 mr-2" />
                 <div>
-                  <h4 className="font-medium text-yellow-800 dark:text-yellow-400">Important Notice</h4>
+                  <h4 className="font-medium text-yellow-800 dark:text-yellow-400">
+                    Important Notice
+                  </h4>
                   <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                    This key will not be shown again. Please copy it now and store it securely.
+                    This key will not be shown again. Please copy it now and
+                    store it securely.
                   </p>
                 </div>
               </div>
@@ -181,30 +196,34 @@ export function RequestApiModal({
             <div className="grid gap-2">
               <div className="grid grid-cols-3 gap-1">
                 <div className="text-sm font-medium">Name:</div>
-                <div className="col-span-2 text-sm">{apiResponse.data.name}</div>
+                <div className="col-span-2 text-sm">
+                  {apiResponse.name}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-1">
                 <div className="text-sm font-medium">Permissions:</div>
-                <div className="col-span-2 text-sm">{apiResponse.data.permissions}</div>
+                <div className="col-span-2 text-sm">
+                  {apiResponse.permissions}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-1">
                 <div className="text-sm font-medium">Rate Limit:</div>
-                <div className="col-span-2 text-sm">{apiResponse.data.rateLimit} requests/day</div>
+                <div className="col-span-2 text-sm">
+                  {apiResponse.rateLimit} requests/day
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-1">
                 <div className="text-sm font-medium">Expires:</div>
                 <div className="col-span-2 text-sm">
-                  {new Date(apiResponse.data.expiresAt).toLocaleDateString()} 
-                  ({new Date(apiResponse.data.expiresAt).toLocaleTimeString()})
+                  {new Date(apiResponse.expiresAt).toLocaleDateString()}(
+                  {new Date(apiResponse.expiresAt).toLocaleTimeString()})
                 </div>
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button onClick={closeSuccessModal}>
-              Close
-            </Button>
+            <Button onClick={closeSuccessModal}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -214,11 +233,12 @@ export function RequestApiModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
-        <form action={formAction} onSubmit={validateAndSubmit}>
+        <form action={formAction}>
           <DialogHeader>
             <DialogTitle>Request API Key</DialogTitle>
             <DialogDescription>
-              Fill in the form below to request a new API key for your application.
+              Fill in the form below to request a new API key for your
+              application.
             </DialogDescription>
           </DialogHeader>
 
@@ -235,11 +255,9 @@ export function RequestApiModal({
                 API
               </Label>
               <div className="col-span-3">
-                <Select 
+                <Select
                   name="apiId"
-                  defaultValue={formData.apiId}
-                  onValueChange={(value) => handleSelectChange("apiId", value)}
-                  required
+                  value={selectedApiId}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select API" />
@@ -264,8 +282,6 @@ export function RequestApiModal({
                 name="name"
                 placeholder="My Project API Key"
                 className="col-span-3"
-                defaultValue={formData.name}
-                required
               />
             </div>
 
@@ -276,9 +292,6 @@ export function RequestApiModal({
               <div className="col-span-3">
                 <Select
                   name="permissions"
-                  defaultValue={formData.permissions}
-                  onValueChange={(value) => handleSelectChange("permissions", value)}
-                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select permissions" />
@@ -304,8 +317,6 @@ export function RequestApiModal({
                 placeholder="1000"
                 min="1"
                 className="col-span-3"
-                defaultValue={formData.rateLimit}
-                required
               />
             </div>
 
@@ -314,10 +325,9 @@ export function RequestApiModal({
                 Expires On
               </Label>
               <div className="col-span-3">
-                <input 
-                  type="hidden" 
-                  name="expiresAt" 
-                  value={formData.expiresAt} 
+                <input
+                  type="hidden"
+                  name="expiresAt"
                 />
                 <Popover>
                   <PopoverTrigger asChild>
@@ -341,7 +351,7 @@ export function RequestApiModal({
                     <Calendar
                       mode="single"
                       selected={selectedDate}
-                      onSelect={handleDateSelect}
+                      onSelect={(date) => setSelectedDate(date)}
                       initialFocus
                       disabled={(date) => date < new Date()}
                     />
