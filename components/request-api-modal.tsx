@@ -92,7 +92,6 @@ export function RequestApiModal({
     const data = {
       apiId: selectedApiId || "",
       name: formData.get("name") || "",
-      status: "inactive",
       permissions: formData.get("permissions") || "",
       rateLimit: formData.get("rateLimit") || "1000",
       expiresAt: formData.get("expiresAt") || new Date().toISOString(),

@@ -59,22 +59,22 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 z-[-1]" />
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10 z-[-1]" />
+        <div className="absolute inset-0 bg-[url('/grid-pattern.jpg')] bg-cover bg-center bg-no-repeat opacity-10 z-[-1]" />
         
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
-            Build with Powerful APIs
+        Build with Powerful APIs
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Access our developer-friendly APIs and tools to create innovative applications and services
+        Access our developer-friendly APIs and tools to create innovative applications and services
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="text-lg px-8" asChild>
-              <Link href="/docs">Explore APIs</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8" asChild>
-              <Link href="/dashboard">My Dashboard</Link>
-            </Button>
+        <Button size="lg" className="text-lg px-8" asChild>
+          <Link href="/docs">Explore APIs</Link>
+        </Button>
+        <Button size="lg" variant="outline" className="text-lg px-8" asChild>
+          <Link href="/dashboard">My Dashboard</Link>
+        </Button>
           </div>
         </div>
       </section>
