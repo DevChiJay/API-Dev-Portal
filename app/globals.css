@@ -61,3 +61,117 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add custom styling for markdown content */
+.markdown-content {
+  @apply text-foreground;
+}
+
+.markdown-content h1 {
+  @apply text-3xl font-bold mt-8 mb-4;
+}
+
+.markdown-content h2 {
+  @apply text-2xl font-bold mt-6 mb-3;
+}
+
+.markdown-content h3 {
+  @apply text-xl font-semibold mt-5 mb-2;
+}
+
+.markdown-content p {
+  @apply my-4;
+}
+
+.markdown-content ul {
+  @apply list-disc pl-6 my-4;
+}
+
+.markdown-content ol {
+  @apply list-decimal pl-6 my-4;
+}
+
+.markdown-content li {
+  @apply my-1;
+}
+
+.markdown-content code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+/* Improved code block styling */
+.markdown-content pre {
+  @apply bg-zinc-900 dark:bg-zinc-950 p-0 rounded-md overflow-x-auto my-6 shadow-md border border-zinc-800;
+  position: relative;
+}
+
+.markdown-content pre:before {
+  @apply bg-zinc-800 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 text-xs px-3 py-1 rounded-t-sm;
+  content: "Code";
+  display: block;
+  border-bottom: 1px solid theme('colors.zinc.800');
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-4 block text-zinc-100 dark:text-zinc-200 overflow-visible;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  text-shadow: none;
+  line-height: 1.6;
+}
+
+/* Code syntax highlight colors */
+.markdown-content pre .keyword {
+  @apply text-pink-400;
+}
+
+.markdown-content pre .string {
+  @apply text-green-400;
+}
+
+.markdown-content pre .comment {
+  @apply text-zinc-500 italic;
+}
+
+.markdown-content pre .number {
+  @apply text-yellow-400;
+}
+
+.markdown-content pre .function {
+  @apply text-blue-400;
+}
+
+/* Code block line numbers (optional) */
+.markdown-content pre.with-line-numbers {
+  counter-reset: line;
+}
+
+.markdown-content pre.with-line-numbers code > span {
+  @apply block;
+  counter-increment: line;
+  position: relative;
+}
+
+.markdown-content pre.with-line-numbers code > span:before {
+  @apply text-zinc-600 inline-block w-4 mr-4 text-right;
+  content: counter(line);
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-muted-foreground pl-4 italic my-4;
+}
+
+.markdown-content table {
+  @apply w-full border-collapse my-4;
+}
+
+.markdown-content th, .markdown-content td {
+  @apply border border-border p-2;
+}
+
+.markdown-content th {
+  @apply bg-muted;
+}
+
+.markdown-content a {
+  @apply text-primary underline hover:no-underline;
+}
