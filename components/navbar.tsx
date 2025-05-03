@@ -50,7 +50,7 @@ export default function Navbar() {
             <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">API</span>
             </div>
-            <span>DevPortal</span>
+            <span>DevChi</span>
           </Link>
           
           <nav className="hidden md:flex items-center gap-6 ml-10">
@@ -99,7 +99,7 @@ export default function Navbar() {
                   <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
                     <span className="text-sm font-bold text-primary-foreground">API</span>
                   </div>
-                  DevPortal
+                  DevChi
                 </Link>
                 
                 <nav className="flex flex-col gap-2">

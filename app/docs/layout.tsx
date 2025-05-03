@@ -13,7 +13,7 @@ export default function DocsLayout({ children }: { children: ReactNode }) {
       <footer className="border-t py-6 bg-background">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-sm text-muted-foreground">
-            © 2025 DevPortal API Platform. All rights reserved.
+            © 2025 DevChi API Platform. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

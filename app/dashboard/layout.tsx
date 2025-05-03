@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
             <span className="text-sm font-bold text-primary-foreground">API</span>
           </div>
-          <span className="font-semibold text-lg">DevPortal</span>
+          <span className="font-semibold text-lg">DevChi</span>
         </div>
         
         <ScrollArea className="flex-grow px-3 py-4">
@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
               <span className="text-xs font-bold text-primary-foreground">API</span>
             </div>
-            <span className="font-semibold">DevPortal</span>
+            <span className="font-semibold">DevChi</span>
           </div>
           
           <div className="flex items-center gap-1">
@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center ml-2">
               <span className="text-xs font-bold text-primary-foreground">API</span>
             </div>
-            <span className="font-semibold">DevPortal</span>
+            <span className="font-semibold">DevChi</span>
           </div>
           
           <ScrollArea className="h-[calc(100vh-60px)]">

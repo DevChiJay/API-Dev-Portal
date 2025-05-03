@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <span className="text-sm font-bold text-primary-foreground">API</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-lg">DevPortal</span>
+            <span className="font-semibold text-lg">DevChi</span>
             <span className="text-xs text-muted-foreground">Admin Panel</span>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <span className="text-xs font-bold text-primary-foreground">API</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold">DevPortal</span>
+              <span className="font-semibold">DevChi</span>
               <span className="text-xs text-muted-foreground">Admin Panel</span>
             </div>
           </div>

@@ -39,7 +39,7 @@ export default function DocsNavbar() {
             <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
               <span className="text-sm font-bold text-primary-foreground">API</span>
             </div>
-            <span className="font-medium">DevPortal</span>
+            <span className="font-medium">DevChi</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -100,7 +100,7 @@ export default function DocsNavbar() {
                   <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
                     <span className="text-xs font-bold text-primary-foreground">API</span>
                   </div>
-                  <span className="font-medium">DevPortal</span>
+                  <span className="font-medium">DevChi</span>
                 </div>
 
                 <div className="relative flex items-center">

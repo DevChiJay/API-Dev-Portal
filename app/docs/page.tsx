@@ -309,7 +309,7 @@ function ApiCard({ api, onRequestClick, isSignedIn }: {
       <CardFooter className="flex gap-2">
         <Button variant="outline" size="sm" className="flex-1 min-w-0" asChild>
           <Link href={`/docs/${api.slug}`} className="whitespace-nowrap overflow-hidden text-ellipsis">
-            <FileText className="h-4 w-4 mr-1 flex-shrink-0" /> Documentation
+            <FileText className="h-4 w-4 mr-1 flex-shrink-0" /> Docs
           </Link>
         </Button>
         <Button
@@ -318,7 +318,7 @@ function ApiCard({ api, onRequestClick, isSignedIn }: {
           onClick={() => onRequestClick(api)}
           disabled={!isSignedIn}
         >
-          <ExternalLink className="h-4 w-4 mr-1 flex-shrink-0" /> Request API
+          <ExternalLink className="h-4 w-4 mr-1 flex-shrink-0" /> Get
         </Button>
       </CardFooter>
     </Card>
