@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { Key, Settings, ShieldCheck, Users } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -34,7 +33,6 @@ const sidebarItems = [
 ]
 
 export default function AdminSidebar() {
-  const pathname = usePathname()
   const isMobile = useMobile()
 
   const SidebarContent = (
@@ -45,12 +43,10 @@ export default function AdminSidebar() {
           {sidebarItems.map((item) => (
             <Button
               key={item.href}
-              variant={pathname === item.href ? "secondary" : "ghost"}
+              variant="ghost"
               className={cn(
                 "w-full justify-start",
-                pathname === item.href
-                  ? "bg-secondary text-secondary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                "text-muted-foreground hover:text-foreground",
               )}
               asChild
             >

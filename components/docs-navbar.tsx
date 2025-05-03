@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
-import { Book, Menu, X } from "lucide-react";
+import { UserButton, useAuth } from "@clerk/nextjs";
+import { Book, Menu, ArrowRight, ChevronRight, Home, Library, Search } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   {
@@ -27,16 +28,18 @@ const navItems = [
 ];
 
 export default function DocsNavbar() {
-  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isSignedIn, isLoaded } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
-            <Book className="h-5 w-5" />
-            <span className="font-medium">DevChi API</span>
+            <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+              <span className="text-sm font-bold text-primary-foreground">API</span>
+            </div>
+            <span className="font-medium">DevPortal</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -46,23 +49,43 @@ export default function DocsNavbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm transition-colors hover:text-primary",
-                  pathname === item.href || pathname.startsWith(`${item.href}/`)
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground"
+                  "text-sm transition-colors hover:text-primary relative py-2",
+                  "text-muted-foreground"
                 )}
               >
                 {item.name}
+                {item.name === "APIs" && (
+                  <Badge variant="outline" className="ml-2 py-0 text-[10px]">
+                    New
+                  </Badge>
+                )}
               </Link>
             ))}
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
+          <div className="relative hidden md:flex items-center">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input type="search" placeholder="Search docs..." className="pl-8 w-[200px] bg-background" />
+          </div>
+          
           <ModeToggle />
-          <UserButton
-            afterSignOutUrl="/"
-          />
+          
+          {isLoaded && isSignedIn ? (
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  userButtonAvatarBox: "w-8 h-8"
+                }
+              }}
+            />
+          ) : (
+            <Button size="sm" className="hidden md:inline-flex" asChild>
+              <Link href="/login">Sign In</Link>
+            </Button>
+          )}
 
           {/* Mobile Menu Button */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -73,27 +96,58 @@ export default function DocsNavbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[240px] sm:w-[300px]">
               <div className="flex flex-col gap-6 pt-6">
-                <h2 className="text-lg font-medium border-b pb-2">
-                  Navigation
-                </h2>
-                <nav className="flex flex-col gap-2">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "py-2 px-3 text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground",
-                        pathname === item.href ||
-                          pathname.startsWith(`${item.href}/`)
-                          ? "bg-accent text-accent-foreground font-medium"
-                          : "text-muted-foreground"
-                      )}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {item.name}
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
+                    <span className="text-xs font-bold text-primary-foreground">API</span>
+                  </div>
+                  <span className="font-medium">DevPortal</span>
+                </div>
+
+                <div className="relative flex items-center">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input type="search" placeholder="Search..." className="pl-8 w-full bg-background" />
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-medium border-b pb-2 mb-2">
+                    Navigation
+                  </h2>
+                  <nav className="flex flex-col gap-2">
+                    <Link href="/" className="flex items-center py-2 px-3 text-sm rounded-md transition-colors hover:bg-accent text-foreground">
+                      <Home className="h-4 w-4 mr-2" />
+                      Home
                     </Link>
-                  ))}
-                </nav>
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "py-2 px-3 text-sm rounded-md transition-colors hover:bg-accent hover:text-accent-foreground flex items-center justify-between",
+                          "text-muted-foreground"
+                        )}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span>{item.name}</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+                
+                {!isSignedIn && (
+                  <div className="mt-auto pt-6 border-t flex flex-col gap-2">
+                    <Button className="w-full" asChild>
+                      <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                        Create Account
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                        Sign In
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>
