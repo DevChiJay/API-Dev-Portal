@@ -2,33 +2,48 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { BarChart, Clock, Key, KeyRound } from "lucide-react";
+import { BarChart, Clock, Key, KeyRound, AlertCircle, Plus } from "lucide-react";
 import { useApiData } from "@/hooks/use-api-data";
+import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
-interface ApiUsageSummary {
-  totalCalls: number;
-  activeKeys: number;
-  availableApis: number;
-  recentActivity: Array<{
-    id: string;
-    apiName: string;
-    timestamp: string;
-    status: string;
-  }>;
+interface ApiKey {
+  id: string;
+  name: string;
+  status: "active" | "expired" | "revoked";
+  createdAt: string;
+}
+
+interface ApiInfo {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
 }
 
 export default function Dashboard() {
   const { user } = useUser();
-  const { data, isLoading, error } = useApiData<ApiUsageSummary>({
-    endpoint: "/api/usage/summary",
+  
+  const { data: keysData, isLoading: keysLoading } = useApiData<{ keys: ApiKey[] }>({
+    endpoint: "/api/keys",
+    dependencies: [user?.id],
+  });
+  
+  const { data: apisData, isLoading: apisLoading } = useApiData<{ apis: ApiInfo[] }>({
+    endpoint: "/api/apis",
     dependencies: [user?.id],
   });
 
-  if (isLoading) {
+  // Derived metrics
+  const activeKeysCount = keysData?.keys?.filter(key => key.status === "active").length || 0;
+  const totalApisCount = apisData?.apis?.length || 0;
+
+  if (keysLoading || apisLoading) {
     return <DashboardSkeleton />;
   }
 
@@ -41,26 +56,15 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total API Calls</CardTitle>
-            <BarChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data?.totalCalls || 0}</div>
-            <p className="text-xs text-muted-foreground pt-1">
-              Across all your active keys
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Active API Keys</CardTitle>
             <KeyRound className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.activeKeys || 0}</div>
+            <div className="text-2xl font-bold">{activeKeysCount}</div>
             <p className="text-xs text-muted-foreground pt-1">
-              Keys with recent activity
+              <Link href="/dashboard/my-keys" className="hover:underline">
+                {activeKeysCount === 0 ? "Create your first key" : "Manage your keys"}
+              </Link>
             </p>
           </CardContent>
         </Card>
@@ -71,9 +75,11 @@ export default function Dashboard() {
             <Key className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data?.availableApis || 0}</div>
+            <div className="text-2xl font-bold">{totalApisCount}</div>
             <p className="text-xs text-muted-foreground pt-1">
-              APIs you can access
+              <Link href="/dashboard/available-apis" className="hover:underline">
+                View available APIs
+              </Link>
             </p>
           </CardContent>
         </Card>
@@ -92,64 +98,50 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Your recent API usage and interactions
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="border rounded-md">
-              <div className="relative w-full overflow-auto">
-                <table className="w-full caption-bottom text-sm">
-                  <thead className="[&_tr]:border-b">
-                    <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        API
-                      </th>
-                      <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Timestamp
-                      </th>
-                      <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="[&_tr:last-child]:border-0">
-                    {data?.recentActivity?.length ? (
-                      data.recentActivity.map((activity) => (
-                        <tr
-                          key={activity.id}
-                          className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                        >
-                          <td className="p-4 align-middle">{activity.apiName}</td>
-                          <td className="p-4 align-middle">{new Date(activity.timestamp).toLocaleString()}</td>
-                          <td className="p-4 align-middle">
-                            <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                              activity.status === "Success" 
-                                ? "bg-green-100 text-green-800" 
-                                : "bg-red-100 text-red-800"
-                            }`}>
-                              {activity.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={3} className="h-24 text-center text-muted-foreground">
-                          No recent activity
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        <div />
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Your API Keys</CardTitle>
+              <CardDescription>Recently created API keys</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {keysData?.keys && keysData.keys.length > 0 ? (
+                <div className="space-y-4">
+                  {keysData.keys.slice(0, 3).map(key => (
+                    <div key={key.id} className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{key.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Created {new Date(key.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge variant={key.status === "active" ? "default" : "secondary"}>
+                        {key.status.charAt(0).toUpperCase() + key.status.slice(1)}
+                      </Badge>
+                    </div>
+                  ))}
+                  <Button asChild variant="outline" className="w-full mt-2">
+                    <Link href="/dashboard/my-keys">
+                      View all keys
+                    </Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="mb-4 text-muted-foreground">No API keys found</p>
+                  <Button asChild>
+                    <Link href="/dashboard/my-keys">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Create API Key
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useAuth } from '@clerk/nextjs';
 
 interface ApiDataOptions {
@@ -31,29 +31,35 @@ export function useApiData<T>({ endpoint, method = 'GET', body, dependencies = [
         };
 
         let response;
+        const baseUrl = process.env.NEXT_PUBLIC_API_GATEWAY_URL || '';
         
         if (method === 'GET') {
-          response = await axios.get(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}${endpoint}`, config);
+          response = await axios.get(`${baseUrl}${endpoint}`, config);
         } else if (method === 'POST') {
-          response = await axios.post(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}${endpoint}`, body, config);
+          response = await axios.post(`${baseUrl}${endpoint}`, body, config);
         } else if (method === 'PUT') {
-          response = await axios.put(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}${endpoint}`, body, config);
+          response = await axios.put(`${baseUrl}${endpoint}`, body, config);
         } else if (method === 'DELETE') {
-          response = await axios.delete(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}${endpoint}`, config);
+          response = await axios.delete(`${baseUrl}${endpoint}`, config);
         }
 
         setData(response?.data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('An unknown error occurred'));
+        const error = err as AxiosError;
+        const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
+        setError(new Error(errorMessage));
         setData(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
+    // Only fetch if we have valid dependencies
+    if (!dependencies.some(dep => dep === undefined || dep === null)) {
+      fetchData();
+    }
   }, [...dependencies]);
 
-  return { data, error, isLoading };
+  return { data, error, isLoading, refetch: () => dependencies.forEach(() => {}) };
 }
