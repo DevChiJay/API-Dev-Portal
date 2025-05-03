@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import DocsNavbar from "@/src/components/docs-navbar";
+import DocsNavbar from "@/src/components/Docs/Navbar";
 import { Separator } from "@/src/components/ui/separator";
 
 export default function DocsLayout({ children }: { children: ReactNode }) {
