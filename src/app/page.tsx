@@ -4,6 +4,7 @@ import CTA from "../components/CTA";
 import Benefits from "../components/Benefits";
 import Metrics from "../components/Metrics";
 import FAQ from "../components/FAQ";
+import Pricing from "../components/Pricing";
 import Footer from "../components/Footer";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
       <Benefits />
       <Metrics />
       <FAQ />
+      <Pricing />
       <CTA />
       <Footer />
     </div>

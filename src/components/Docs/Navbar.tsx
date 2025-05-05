@@ -25,6 +25,10 @@ const navItems = [
     name: "Dashboard",
     href: "/dashboard",
   },
+  {
+    name: "Pricing",
+    href: "/pricing",
+  },
 ];
 
 export default function DocsNavbar() {
