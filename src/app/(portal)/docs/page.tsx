@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Head from "next/head";
 
 import { useApiData } from "@/src/hooks/use-api-data";
 import { RequestApiModal } from "@/src/components/request-api-modal";
@@ -81,40 +82,51 @@ export default function DocsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">API Documentation</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Browse our collection of APIs to integrate with your applications.
-          Each API includes detailed documentation, code samples, and endpoints.
-        </p>
-      </div>
+    <>
+      <Head>
+        <title>API Documentation - API Developer Portal</title>
+        <meta name="description" content="Browse and integrate with our collection of APIs." />
+        <meta property="og:title" content="API Documentation - API Developer Portal" />
+        <meta property="og:description" content="Browse and integrate with our collection of APIs." />
+        <meta property="og:image" content="/logo.png" />
+        <meta property="og:url" content="https://portal.devchihub.com/docs" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
+      <div className="space-y-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">API Documentation</h1>
+          <p className="text-muted-foreground max-w-2xl">
+            Browse our collection of APIs to integrate with your applications.
+            Each API includes detailed documentation, code samples, and endpoints.
+          </p>
+        </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <Sidebar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          categories={categories}
-        />
-        <Main
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          tabFilteredApis={tabFilteredApis}
-          apis={apis}
-          handleRequestClick={handleRequestClick}
-          setSearchQuery={setSearchQuery}
-          setSelectedCategory={setSelectedCategory}
+        <div className="flex flex-col lg:flex-row gap-8">
+          <Sidebar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            categories={categories}
+          />
+          <Main
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            tabFilteredApis={tabFilteredApis}
+            apis={apis}
+            handleRequestClick={handleRequestClick}
+            setSearchQuery={setSearchQuery}
+            setSelectedCategory={setSelectedCategory}
+          />
+        </div>
+
+        <RequestApiModal
+          isOpen={requestModalOpen}
+          onClose={() => setRequestModalOpen(false)}
+          selectedApiId={selectedApiId}
+          availableApis={apis}
         />
       </div>
-
-      <RequestApiModal
-        isOpen={requestModalOpen}
-        onClose={() => setRequestModalOpen(false)}
-        selectedApiId={selectedApiId}
-        availableApis={apis}
-      />
-    </div>
+    </>
   );
 }
